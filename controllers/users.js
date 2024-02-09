@@ -97,6 +97,9 @@ module.exports.updateUserProfile = (req, res, next) => {
       if (err instanceof ValidationError) {
         throw new ValidationError('Переданы некорректные данные при создании пользователя');
       }
+      if (err.code === MONGO_DUPLICATE_ERROR_CODE) {
+        next(new Conflict('Такой пользователь уже зарегистрирован'));
+      }
       return next(err);
     });
 };

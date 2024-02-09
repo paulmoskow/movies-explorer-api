@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const router = require('express').Router();
-const json = require('express').json();
+const { json } = require('express');
 const { errors, celebrate, Joi } = require('celebrate');
 const cors = require('cors');
 
@@ -10,7 +10,8 @@ const userRouter = require('./routes/users');
 const movieRouter = require('./routes/movies');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const ValidationError = require('./errors/validation-err');
+const NotFoundError = require('./errors/not-found-err');
+const errorHandler = require('./errors/err-handler');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { DB_ADDRESS } = require('./config');
 
@@ -20,17 +21,10 @@ const app = express();
 
 // allow CORS
 app.use(cors());
-// app.use(cors({
-// origin: [
-//   'https://paulmoskow.students.nomoredomainsmonster.ru',
-//   'http://paulmoskow.students.nomoredomainsmonster.ru',
-// ],
-// credentials: true,
-// }));
 
 mongoose.connect(DB_ADDRESS);
 
-app.use(json);
+app.use(json());
 app.use(requestLogger);
 
 app.get('/crash-test', () => {
@@ -58,29 +52,15 @@ app.use(auth);
 
 router.use('/users', userRouter);
 router.use('/movies', movieRouter);
-router.use('*', (req, res) => {
-  if (res.status === 404) {
-    throw new ValidationError('Некорректный роут');
-  }
+router.use('*', () => {
+  throw new NotFoundError('Некорректный роут');
 });
 
 app.use(router);
 
 app.use(errorLogger);
 app.use(errors());
-
-app.use((err, req, res) => {
-  console.log(err);
-
-  const { statusCode = 500, message } = err;
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'Произошла ошибка'
-        : message,
-    });
-});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

@@ -11,24 +11,24 @@ movieRouter.get('/', getMovies);
 
 movieRouter.post('/', celebrate({
   body: Joi.object().keys({
-    country: Joi.string(),
-    director: Joi.string(),
-    duration: Joi.number(),
-    year: Joi.string(),
-    description: Joi.string(),
-    image: Joi.string().uri(),
-    trailerLink: Joi.string().uri(),
-    thumbnail: Joi.string().uri(),
-    owner: Joi.string(),
-    movieId: Joi.number(),
-    nameRU: Joi.string(),
-    nameEN: Joi.string(),
+    country: Joi.string().required(),
+    director: Joi.string().required(),
+    duration: Joi.number().required(),
+    year: Joi.string().required(),
+    description: Joi.string().required(),
+    image: Joi.string().required().uri(),
+    trailerLink: Joi.string().required().uri(),
+    thumbnail: Joi.string().required().uri(),
+    owner: Joi.string().required(),
+    movieId: Joi.number().required(),
+    nameRU: Joi.string().required(),
+    nameEN: Joi.string().required(),
   }).unknown(true),
 }), createMovie);
 
 movieRouter.delete('/:_id', celebrate({
   params: Joi.object().keys({
-    _id: Joi.string(),
+    _id: Joi.string().hex(),
   }).unknown(true),
 }), deleteMovie);
 

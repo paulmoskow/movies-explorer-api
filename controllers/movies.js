@@ -4,7 +4,8 @@ const ValidationError = require('../errors/validation-err');
 const Forbidden = require('../errors/forbidden');
 
 module.exports.getMovies = (req, res, next) => {
-  Movie.find({})
+  const userId = req.user._id;
+  Movie.find({ owner: userId })
     .then((movies) => res.status(200).send(movies))
     .catch(next);
 };
@@ -42,7 +43,7 @@ module.exports.deleteMovie = (req, res, next) => {
       if (movie.owner.toString() !== req.user._id) {
         throw new Forbidden('Вы не можете удалить этот фильм');
       }
-      Movie.deleteOne(movie)
+      return Movie.deleteOne(movie)
         .orFail()
         .then(() => {
           if (!movie) {
