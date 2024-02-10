@@ -56,8 +56,6 @@ router.use('*', () => {
   throw new NotFoundError('Некорректный роут');
 });
 
-app.use(router);
-
 app.use(errorLogger);
 app.use(errors());
 app.use(errorHandler);
